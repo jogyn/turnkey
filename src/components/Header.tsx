@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 
 import ParaglideLocaleSwitcher from './LocaleSwitcher.tsx'
-
+import ThemeToggle from './ThemeToggle.tsx'
 import TanChatAIAssistant from './demo-AIAssistant.tsx'
 
 import BetterAuthHeader from '../integrations/better-auth/header-user.tsx'
@@ -317,6 +317,7 @@ export default function Header() {
         </nav>
 
         <div className="p-4 border-t border-gray-700 bg-gray-800 flex flex-col gap-2">
+          <ThemeToggle />
           <ParaglideLocaleSwitcher />
 
           <TanChatAIAssistant />

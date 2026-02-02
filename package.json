@@ -10,7 +10,8 @@
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
-    "migrate:auth": "better-auth migrate"
+    "generate:auth": "pnpm dlx @better-auth/cli generate",
+    "migrate:auth": "pnpm dlx @better-auth/cli migrate"
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.8",

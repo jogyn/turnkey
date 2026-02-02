@@ -3,8 +3,11 @@ import { z } from "zod";
 export const env = createEnv({
     server: {
         SERVER_URL: z.string().url().optional(),
+        BETTER_AUTH_URL: z.string().url().optional(),
         BETTER_AUTH_SECRET: z.string().min(32).optional(),
         DATABASE_PATH: z.string().optional(),
+        /** Comma-separated user IDs that can use admin plugin (e.g. list users, set role). */
+        BETTER_AUTH_ADMIN_USER_IDS: z.string().optional(),
     },
     /**
      * The prefix that client-side variables must have. This is enforced both at

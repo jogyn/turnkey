@@ -53,6 +53,22 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         href: appCss,
       },
     ],
+    scripts: [
+      {
+        children: `
+          (function() {
+            var theme = localStorage.getItem('theme');
+            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var useDark = theme === 'dark' || (theme !== 'light' && prefersDark);
+            if (useDark) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          })();
+        `,
+      },
+    ],
   }),
 
   shellComponent: RootDocument,

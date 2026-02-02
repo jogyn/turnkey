@@ -6,13 +6,13 @@ import { Send, X, ChevronRight, BotIcon } from 'lucide-react'
 import { Streamdown } from 'streamdown'
 
 import { useGuitarRecommendationChat } from '@/lib/demo-ai-hook'
-import type { ChatMessages } from '@/lib/demo-ai-hook'
+import type { UIMessage } from '@tanstack/ai-react'
 
 import GuitarRecommendation from './demo-GuitarRecommendation'
 
 export const showAIAssistant = new Store(false)
 
-function Messages({ messages }: { messages: ChatMessages }) {
+function Messages({ messages }: { messages: UIMessage[] }) {
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

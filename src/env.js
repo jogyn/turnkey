@@ -3,6 +3,8 @@ import { z } from "zod";
 export const env = createEnv({
     server: {
         SERVER_URL: z.string().url().optional(),
+        BETTER_AUTH_SECRET: z.string().min(32).optional(),
+        DATABASE_PATH: z.string().optional(),
     },
     /**
      * The prefix that client-side variables must have. This is enforced both at
@@ -16,7 +18,10 @@ export const env = createEnv({
      * What object holds the environment variables at runtime. This is usually
      * `process.env` or `import.meta.env`.
      */
-    runtimeEnv: import.meta.env,
+    runtimeEnv:
+        typeof process !== 'undefined'
+            ? { ...import.meta.env, ...process.env }
+            : import.meta.env,
     /**
      * By default, this library will feed the environment variables directly to
      * the Zod validator.

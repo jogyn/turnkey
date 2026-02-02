@@ -11,8 +11,8 @@ import {
 } from 'lucide-react'
 import { Streamdown } from 'streamdown'
 
+import type { UIMessage } from '@tanstack/ai-react'
 import { useGuitarRecommendationChat } from '@/lib/demo-ai-hook'
-import type { ChatMessages } from '@/lib/demo-ai-hook'
 import { useAudioRecorder } from '@/hooks/demo-useAudioRecorder'
 import { useTTS } from '@/hooks/demo-useTTS'
 
@@ -51,7 +51,7 @@ function Messages({
   onSpeak,
   onStopSpeak,
 }: {
-  messages: ChatMessages
+  messages: Array<UIMessage>
   playingId: string | null
   onSpeak: (text: string, id: string) => void
   onStopSpeak: () => void
@@ -71,7 +71,7 @@ function Messages({
 
   // Extract text content from message parts
   const getTextContent = (
-    parts: ChatMessages[number]['parts'],
+    parts: UIMessage['parts'],
   ): string | null => {
     for (const part of parts) {
       if (part.type === 'text' && part.content) {
@@ -282,6 +282,6 @@ function ChatPage() {
   )
 }
 
-export const Route = createFileRoute('/demo/ai/chat')({
+export const Route = createFileRoute('/demo/ai-chat')({
   component: ChatPage,
 })

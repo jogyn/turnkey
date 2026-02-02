@@ -1,10 +1,189 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { useMemo, useState } from 'react'
+import { useLiveQuery } from '@tanstack/react-db'
+import { useQueryClient } from '@tanstack/react-query'
 import { authClient } from '@/lib/auth-client'
+import { getOrgCollection } from '@/db-collections/orgs'
 
 export const Route = createFileRoute('/demo/better-auth')({
   component: BetterAuthDemo,
 })
+
+function SignedInView() {
+  const { data: session } = authClient.useSession()
+  const { data: activeOrg } = authClient.useActiveOrganization()
+  const queryClient = useQueryClient()
+  const orgCollection = useMemo(() => getOrgCollection(queryClient), [queryClient])
+  const { data: orgs } = useLiveQuery((q) =>
+    q.from({ org: orgCollection }).select(({ org }) => ({
+      id: org.id,
+      name: org.name,
+      slug: org.slug,
+    })),
+  )
+  const [newOrgName, setNewOrgName] = useState('')
+  const [newOrgSlug, setNewOrgSlug] = useState('')
+  const [orgError, setOrgError] = useState('')
+  const [orgLoading, setOrgLoading] = useState(false)
+
+  const invalidateOrgs = () => {
+    queryClient.invalidateQueries({ queryKey: ['orgs'] })
+  }
+
+  const handleCreateOrg = async (e: React.SubmitEvent) => {
+    e.preventDefault()
+    setOrgError('')
+    setOrgLoading(true)
+    try {
+      const result = await authClient.organization.create({
+        name: newOrgName,
+        slug:
+          newOrgSlug.trim() ||
+          newOrgName
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[^a-z0-9-]/g, ''),
+      })
+      if (result.error) {
+        setOrgError(result.error.message ?? 'Failed to create organization')
+      } else {
+        setNewOrgName('')
+        setNewOrgSlug('')
+        invalidateOrgs()
+      }
+    } catch {
+      setOrgError('Failed to create organization')
+    } finally {
+      setOrgLoading(false)
+    }
+  }
+
+  const handleSetActive = async (organizationId: string) => {
+    setOrgError('')
+    try {
+      await authClient.organization.setActive({ organizationId })
+      invalidateOrgs()
+    } catch {
+      setOrgError('Failed to set active organization')
+    }
+  }
+
+  return (
+    <div className="flex justify-center py-10 px-4">
+      <div className="w-full max-w-md p-6 space-y-6">
+        <div className="space-y-1.5">
+          <h1 className="text-lg font-semibold leading-none tracking-tight">
+            Welcome back
+          </h1>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            You're signed in as {session?.user?.email}
+          </p>
+        </div>
+
+        <div className="flex gap-3">
+          {session?.user?.image ? (
+            <img src={session.user.image} alt="" className="h-10 w-10" />
+          ) : (
+            <div className="h-10 w-10 bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
+              <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                {session?.user?.name?.charAt(0).toUpperCase() ?? 'U'}
+              </span>
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">
+              {session?.user?.name}
+            </p>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+              {session?.user?.email}
+            </p>
+          </div>
+        </div>
+
+        {/* Organizations */}
+        <div className="space-y-3 border-t border-neutral-200 dark:border-neutral-800 pt-4">
+          <h2 className="text-sm font-medium">Organizations</h2>
+          {activeOrg && (
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              Active: {activeOrg.name}
+            </p>
+          )}
+          <form onSubmit={handleCreateOrg} className="grid gap-2">
+            <input
+              type="text"
+              placeholder="Organization name"
+              value={newOrgName}
+              onChange={(e) => setNewOrgName(e.target.value)}
+              className="flex h-9 w-full border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 text-sm focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-100"
+            />
+            <input
+              type="text"
+              placeholder="Slug (optional)"
+              value={newOrgSlug}
+              onChange={(e) => setNewOrgSlug(e.target.value)}
+              className="flex h-9 w-full border border-neutral-300 dark:border-neutral-700 bg-transparent px-3 text-sm focus:outline-none focus:border-neutral-900 dark:focus:border-neutral-100"
+            />
+            <button
+              type="submit"
+              disabled={orgLoading || !newOrgName.trim()}
+              className="h-9 px-4 text-sm font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50"
+            >
+              {orgLoading ? 'Creating…' : 'Create organization'}
+            </button>
+          </form>
+          {orgError && (
+            <p className="text-xs text-red-600 dark:text-red-400">{orgError}</p>
+          )}
+          {orgs && orgs.length > 0 && (
+            <ul className="space-y-1">
+              {orgs.map((org) => (
+                <li key={org.id} className="flex items-center justify-between gap-2 text-sm">
+                  <span>{org.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleSetActive(org.id)}
+                    disabled={activeOrg?.id === org.id}
+                    className="h-7 px-2 text-xs font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 disabled:opacity-50"
+                  >
+                    {activeOrg?.id === org.id ? 'Active' : 'Set active'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="flex gap-2">
+          <Link
+            to="/demo/protected"
+            className="flex-1 h-9 px-4 text-sm font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors inline-flex items-center justify-center"
+          >
+            Protected route
+          </Link>
+          <button
+            onClick={() => authClient.signOut()}
+            className="flex-1 h-9 px-4 text-sm font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
+
+        <p className="text-xs text-center text-neutral-400 dark:text-neutral-500">
+          Built with{' '}
+          <a
+            href="https://better-auth.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium hover:text-neutral-600 dark:hover:text-neutral-300"
+          >
+            BETTER-AUTH
+          </a>
+          .
+        </p>
+      </div>
+    </div>
+  )
+}
 
 function BetterAuthDemo() {
   const { data: session, isPending } = authClient.useSession()
@@ -24,60 +203,7 @@ function BetterAuthDemo() {
   }
 
   if (session?.user) {
-    return (
-      <div className="flex justify-center py-10 px-4">
-        <div className="w-full max-w-md p-6 space-y-6">
-          <div className="space-y-1.5">
-            <h1 className="text-lg font-semibold leading-none tracking-tight">
-              Welcome back
-            </h1>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              You're signed in as {session.user.email}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {session.user.image ? (
-              <img src={session.user.image} alt="" className="h-10 w-10" />
-            ) : (
-              <div className="h-10 w-10 bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
-                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                  {session.user.name?.charAt(0).toUpperCase() || 'U'}
-                </span>
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">
-                {session.user.name}
-              </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
-                {session.user.email}
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => authClient.signOut()}
-            className="w-full h-9 px-4 text-sm font-medium border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            Sign out
-          </button>
-
-          <p className="text-xs text-center text-neutral-400 dark:text-neutral-500">
-            Built with{' '}
-            <a
-              href="https://better-auth.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium hover:text-neutral-600 dark:hover:text-neutral-300"
-            >
-              BETTER-AUTH
-            </a>
-            .
-          </p>
-        </div>
-      </div>
-    )
+    return <SignedInView />
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

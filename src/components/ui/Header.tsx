@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router'
 
-import ParaglideLocaleSwitcher from './ui/LocaleSwitcher.tsx'
-import ThemeToggle from './ui/ThemeToggle.tsx'
+import ParaglideLocaleSwitcher from './LocaleSwitcher.tsx'
+import ThemeToggle from './ThemeToggle.tsx'
 
-import BetterAuthHeader from '../integrations/better-auth/header-user.tsx'
+import BetterAuthHeader from '../../integrations/better-auth/header-user.tsx'
 
 import { useState } from 'react'
 import {
@@ -14,7 +14,6 @@ import {
   Languages,
   Menu,
   Network,
-  Shield,
   SquareFunction,
   StickyNote,
   X,
@@ -188,19 +187,6 @@ export default function Header() {
           >
             <Languages size={20} />
             <span className="font-medium">I18n example</span>
-          </Link>
-
-          <Link
-            to="/demo/protected"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
-            activeProps={{
-              className:
-                'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
-            }}
-          >
-            <Shield size={20} />
-            <span className="font-medium">Protected</span>
           </Link>
 
           <Link

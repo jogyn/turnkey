@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { authMiddleware } from '@/lib/middleware'
 import { authClient } from '@/lib/auth-client'
+import { ScrollableContent } from '../../components/ScrollableContent'
 
 export const Route = createFileRoute('/demo/protected')({
   component: ProtectedPage,
@@ -14,6 +15,7 @@ function ProtectedPage() {
   const { data: activeOrg } = authClient.useActiveOrganization()
 
   return (
+    <ScrollableContent>
     <div className="min-h-screen flex justify-center py-14 px-4 bg-slate-50 dark:bg-slate-950">
       <div className="w-full max-w-md space-y-6">
         <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-lg shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-200/80 dark:ring-slate-700/80 overflow-hidden">
@@ -43,5 +45,6 @@ function ProtectedPage() {
         </div>
       </div>
     </div>
+    </ScrollableContent>
   )
 }

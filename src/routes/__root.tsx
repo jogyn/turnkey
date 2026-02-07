@@ -1,5 +1,6 @@
 import {
   HeadContent,
+  ScriptOnce,
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
@@ -7,10 +8,14 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import Header from '../components/ui/Header'
+import Sidebar from '../components/ui/Sidebar'
+import { ThemeProvider } from '../components/ThemeProvider'
+import { SidebarProvider } from '../components/SidebarProvider'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import { getLocale } from '@/paraglide/runtime'
+import { THEME_SCRIPT } from '@/lib/theme'
 
 import appCss from '../styles.css?url'
 
@@ -48,22 +53,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         href: appCss,
       },
     ],
-    scripts: [
-      {
-        children: `
-          (function() {
-            var theme = localStorage.getItem('theme');
-            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            var useDark = theme === 'dark' || (theme !== 'light' && prefersDark);
-            if (useDark) {
-              document.documentElement.classList.add('dark');
-            } else {
-              document.documentElement.classList.remove('dark');
-            }
-          })();
-        `,
-      },
-    ],
   }),
 
   shellComponent: RootDocument,
@@ -71,13 +60,25 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={getLocale()}>
+    <html lang={getLocale()} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        <Header />
-        {children}
+        {/* Theme script: emitted once during SSR, runs before hydration to avoid FOUC. ScriptOnce appends ;document.currentScript.remove() */}
+        <ScriptOnce>{THEME_SCRIPT}</ScriptOnce>
+        <ThemeProvider>
+          <div className="flex-1 min-h-0 flex flex-col min-w-0">
+            <SidebarProvider>
+              <Header />
+              <div className="flex-1 min-h-0 flex min-w-0">
+                <Sidebar />
+                <div className="flex-1 min-h-0 flex flex-col min-w-0">
+                  {children}
+                </div>
+              </div>
+            </SidebarProvider>
+          </div>
         <TanStackDevtools
           config={{
             position: 'bottom-right',
@@ -91,6 +92,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           ]}
         />
         <Scripts />
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -1,89 +1,71 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import { Monitor, Moon, Sun } from 'lucide-react'
+import { useTheme } from '@/components/ThemeProvider'
+import type { UserTheme } from '@/lib/theme'
 
-const THEME_KEY = 'theme'
-type Theme = 'light' | 'dark' | 'system'
+const THEMES: UserTheme[] = ['light', 'dark', 'system']
 
-function getStoredTheme(): Theme {
-  if (typeof localStorage === 'undefined') return 'system'
-  const t = localStorage.getItem(THEME_KEY)
-  if (t === 'light' || t === 'dark' || t === 'system') return t
-  return 'system'
+const config: Record<
+  UserTheme,
+  { label: string; icon: typeof Sun; className: string }
+> = {
+  light: { label: 'Light', icon: Sun, className: 'theme-option-light' },
+  dark: { label: 'Dark', icon: Moon, className: 'theme-option-dark' },
+  system: { label: 'System', icon: Monitor, className: 'theme-option-system' },
 }
 
-function prefersDark(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
-}
+export default function ThemeToggle({ compact }: { compact?: boolean }) {
+  const { userTheme, setTheme } = useTheme()
 
-function applyTheme(theme: Theme) {
-  if (typeof document === 'undefined') return
-  const useDark = theme === 'dark' || (theme === 'system' && prefersDark())
-  if (useDark) {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
+  const cycleTheme = () => {
+    const idx = THEMES.indexOf(userTheme)
+    const next = THEMES[(idx + 1) % THEMES.length]
+    setTheme(next)
   }
-}
 
-export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>('system')
-  const isInitialMount = useRef(true)
-
-  // Sync state from localStorage after mount
-  useEffect(() => {
-    setTheme(getStoredTheme())
-  }, [])
-
-  // Apply theme and persist (skip first run so we don't overwrite script)
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false
-      return
-    }
-    localStorage.setItem(THEME_KEY, theme)
-    applyTheme(theme)
-  }, [theme])
-
-  // When theme is 'system', react to OS preference changes
-  useEffect(() => {
-    if (theme !== 'system') return
-    const m = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = () => applyTheme('system')
-    m.addEventListener('change', handler)
-    return () => m.removeEventListener('change', handler)
-  }, [theme])
-
-  const options: { value: Theme; label: string; icon: typeof Sun }[] = [
-    { value: 'light', label: 'Light', icon: Sun },
-    { value: 'dark', label: 'Dark', icon: Moon },
-    { value: 'system', label: 'System', icon: Monitor },
-  ]
+  if (compact) {
+    const { icon: Icon, className } = config[userTheme]
+    return (
+      <button
+        type="button"
+        onClick={cycleTheme}
+        className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+        aria-label={`Theme: ${config[userTheme].label}. Cycle theme.`}
+      >
+        <span data-theme-option={userTheme} className={className}>
+          <Icon size={20} />
+        </span>
+      </button>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="px-3 py-1.5 text-xs font-medium text-gray-400 uppercase tracking-wider">
+      <span className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">
         Theme
       </span>
       <div className="flex flex-col gap-0.5">
-        {options.map(({ value, label, icon: Icon }) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setTheme(value)}
-            className={`flex items-center gap-3 p-3 rounded-lg transition-colors w-full text-left ${
-              theme === value
-                ? 'bg-gray-700 text-white'
-                : 'hover:bg-gray-800 text-gray-200'
-            }`}
-            aria-label={`Use ${label} theme`}
-            aria-pressed={theme === value}
-          >
-            <Icon size={20} className="shrink-0" />
-            <span className="font-medium">{label}</span>
-          </button>
-        ))}
+        <button
+          type="button"
+          onClick={cycleTheme}
+          className="flex items-center gap-3 p-3 rounded-lg transition-colors w-full text-left text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
+          aria-label="Cycle theme"
+        >
+          {THEMES.map((value) => {
+            const { label, icon: Icon, className } = config[value]
+            return (
+              <span
+                key={value}
+                data-theme-option={value}
+                className={`${className} flex items-center gap-3 w-full -m-3 p-3 rounded-lg`}
+              >
+                <Icon size={20} className="shrink-0" />
+                <span className="font-medium">{label}</span>
+              </span>
+            )
+          })}
+        </button>
       </div>
     </div>
   )

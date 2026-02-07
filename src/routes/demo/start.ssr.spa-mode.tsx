@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { getPunkSongs } from '@/data/demo.punk-songs'
+import { ScrollableContent } from '@/components/ScrollableContent'
 
 export const Route = createFileRoute('/demo/start/ssr/spa-mode')({
   ssr: false,
@@ -17,31 +18,30 @@ function RouteComponent() {
   }, [])
 
   return (
-    <div
-      className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-800 to-black p-4 text-white"
-      style={{
-        backgroundImage:
-          'radial-gradient(50% 50% at 20% 60%, #1a1a1a 0%, #0a0a0a 50%, #000000 100%)',
-      }}
-    >
-      <div className="w-full max-w-2xl p-8 rounded-xl backdrop-blur-md bg-black/50 shadow-xl border-8 border-black/10">
-        <h1 className="text-3xl font-bold mb-6 text-green-400">
+    <ScrollableContent>
+    <div className="flex items-center justify-center min-h-screen p-4 bg-slate-50 dark:bg-slate-950">
+      <div className="w-full max-w-2xl p-8 rounded-2xl bg-white dark:bg-slate-900 shadow-lg shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-200/80 dark:ring-slate-700/80 overflow-hidden">
+        <h1 className="text-3xl font-bold mb-6 text-green-600 dark:text-green-400">
           SPA Mode - Punk Songs
         </h1>
         <ul className="space-y-3">
           {punkSongs.map((song) => (
             <li
               key={song.id}
-              className="bg-white/10 border border-white/20 rounded-lg p-4 backdrop-blur-sm shadow-md"
+              className="rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50 px-4 py-3"
             >
-              <span className="text-lg text-white font-medium">
+              <span className="text-lg font-medium text-slate-900 dark:text-white">
                 {song.name}
               </span>
-              <span className="text-white/60"> - {song.artist}</span>
+              <span className="text-slate-500 dark:text-slate-400">
+                {' '}
+                - {song.artist}
+              </span>
             </li>
           ))}
         </ul>
       </div>
     </div>
+    </ScrollableContent>
   )
 }

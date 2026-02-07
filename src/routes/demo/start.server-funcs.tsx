@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import { useCallback, useState } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { ScrollableContent } from '../../components/ScrollableContent'
 
 /*
 const loggingMiddleware = createMiddleware().server(
@@ -63,22 +64,21 @@ function Home() {
   }, [addTodo, todo])
 
   return (
-    <div
-      className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-800 to-black p-4 text-white"
-      style={{
-        backgroundImage:
-          'radial-gradient(50% 50% at 20% 60%, #23272a 0%, #18181b 50%, #000000 100%)',
-      }}
-    >
-      <div className="w-full max-w-2xl p-8 rounded-xl backdrop-blur-md bg-black/50 shadow-xl border-8 border-black/10">
-        <h1 className="text-2xl mb-4">Start Server Functions - Todo Example</h1>
+    <ScrollableContent>
+    <div className="flex items-center justify-center min-h-screen p-4 bg-slate-50 dark:bg-slate-950">
+      <div className="w-full max-w-2xl p-8 rounded-2xl bg-white dark:bg-slate-900 shadow-lg shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-200/80 dark:ring-slate-700/80 overflow-hidden">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white mb-4">
+          Start Server Functions - Todo Example
+        </h1>
         <ul className="mb-4 space-y-2">
           {todos?.map((t) => (
             <li
               key={t.id}
-              className="bg-white/10 border border-white/20 rounded-lg p-3 backdrop-blur-sm shadow-md"
+              className="rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50 px-4 py-3"
             >
-              <span className="text-lg text-white">{t.name}</span>
+              <span className="text-lg text-slate-900 dark:text-white">
+                {t.name}
+              </span>
             </li>
           ))}
         </ul>
@@ -93,17 +93,18 @@ function Home() {
               }
             }}
             placeholder="Enter a new todo..."
-            className="w-full px-4 py-3 rounded-lg border border-white/20 bg-white/10 backdrop-blur-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-600 focus:border-transparent"
           />
           <button
             disabled={todo.trim().length === 0}
             onClick={submitTodo}
-            className="bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors"
+            className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed font-semibold py-3 px-4 rounded-xl transition-colors"
           >
             Add todo
           </button>
         </div>
       </div>
     </div>
+    </ScrollableContent>
   )
 }

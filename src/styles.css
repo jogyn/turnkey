@@ -4,7 +4,10 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 body {
-  @apply m-0;
+  @apply m-0 flex flex-col;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
@@ -15,4 +18,40 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+/* CSS-driven theme toggle: show/highlight the active option on first paint (no flicker) */
+.theme-option-light {
+  display: none;
+}
+.theme-option-dark {
+  display: none;
+}
+.theme-option-system {
+  display: none;
+}
+/* Fallback when no theme class yet (e.g. SSR) */
+html:not(.light):not(.dark) .theme-option-system {
+  display: flex;
+}
+.light:not(.system) .theme-option-light {
+  display: flex;
+}
+.dark:not(.system) .theme-option-dark {
+  display: flex;
+}
+.system .theme-option-system {
+  display: flex;
+}
+.light:not(.system) .theme-option-light {
+  @apply bg-slate-200 text-slate-900;
+}
+.dark:not(.system) .theme-option-dark {
+  @apply bg-slate-700 text-white;
+}
+.system .theme-option-system {
+  @apply bg-slate-200 text-slate-900;
+}
+.dark.system .theme-option-system {
+  @apply bg-slate-700 text-white;
 }

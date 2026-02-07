@@ -4,6 +4,7 @@ import { useLiveQuery } from '@tanstack/react-db'
 import { useQueryClient } from '@tanstack/react-query'
 import { authClient } from '@/lib/auth-client'
 import { getOrgCollection } from '@/db-collections/orgs'
+import { ScrollableContent } from '../../components/ScrollableContent'
 
 export const Route = createFileRoute('/demo/better-auth')({
   component: BetterAuthDemo,
@@ -118,6 +119,7 @@ function SignedInView() {
     'h-10 px-4 text-sm font-medium rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors disabled:opacity-50'
 
   return (
+    <ScrollableContent>
     <div className="min-h-screen flex justify-center py-14 px-4 bg-slate-50 dark:bg-slate-950">
       {/* Delete organization modal */}
       {deleteOrg && (
@@ -358,6 +360,7 @@ function SignedInView() {
         </p>
       </div>
     </div>
+    </ScrollableContent>
   )
 }
 
@@ -372,9 +375,11 @@ function BetterAuthDemo() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700 dark:border-slate-700 dark:border-t-slate-300" />
-      </div>
+      <ScrollableContent>
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700 dark:border-slate-700 dark:border-t-slate-300" />
+        </div>
+      </ScrollableContent>
     )
   }
 
@@ -417,6 +422,7 @@ function BetterAuthDemo() {
     'h-10 w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800/50 px-3.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:focus:ring-slate-600 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed'
 
   return (
+    <ScrollableContent>
     <div className="min-h-screen flex justify-center py-14 px-4 bg-slate-50 dark:bg-slate-950">
       <div className="w-full max-w-md">
         <div className="rounded-2xl bg-white dark:bg-slate-900 shadow-lg shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-200/80 dark:ring-slate-700/80 overflow-hidden">
@@ -530,5 +536,6 @@ function BetterAuthDemo() {
         </p>
       </div>
     </div>
+    </ScrollableContent>
   )
 }
